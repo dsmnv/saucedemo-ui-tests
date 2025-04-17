@@ -7,43 +7,43 @@ username = 'standard_user'
 password = 'secret_sauce'
 
 
-def test_login_with_valid_credentials(page):
-    page.goto('/')
+def test_login_with_valid_credentials(login_page, page):
     with allure.step('Открыта главная страница'):
+        login_page.open()
         assert page.title() == 'Swag Labs'
 
     with allure.step('Ввод логина и пароля'):
-        page.fill('#user-name', username)
-        page.fill('#password', password)
+        login_page.login(username, password)
 
-    with allure.step('Нажатие на кнопку логина'):
-        page.click('#login-button')
-
-    with allure.step('Проверка редиректа в катало'):
+    with allure.step('Проверка редиректа в каталог'):
         assert page.url == 'https://www.saucedemo.com/inventory.html'
-        allure.attach(page.screenshot(), name='Catalog page', attachment_type=allure.attachment_type.PNG)
+        allure.attach(page.screenshot(), name='Catalog page', attachment_type=allure.attachment_type.JPG)
 
 
-def test_login_with_invalid_password(page):
-    page.goto('/')
+def test_login_with_invalid_password(login_page, page):
     with allure.step('Открыта главная страница'):
+        login_page.open()
         assert page.title() == 'Swag Labs'
 
-    with allure.step('Ввод логина'):
-        page.fill('#user-name', username)
-
-    with allure.step('Ввод неверного пароля'):
-        page.fill('#password', '123456')
-
-    with allure.step('Нажатие на кнопку логина'):
-        page.click('#login-button')
+    with allure.step('Ввод логина и неверного пароля'):
+        login_page.login(username, '123456')
 
     with allure.step('Появилось сообщение об ошибке'):
-        error = page.locator('[data-test="error"]')
-        assert error.is_visible()
-        assert error.inner_text() == 'Epic sadface: Username and password do not match any user in this service'
-        allure.attach(page.screenshot(), name='Error message', attachment_type=allure.attachment_type.PNG)
+        login_page.assert_error_visible()
+        login_page.assert_error_message_text('Epic sadface: Username and password do not match any user in this service')
+        allure.attach(page.screenshot(), name='Error message', attachment_type=allure.attachment_type.JPG)
 
+
+def test_login_without_data(login_page, page):
+    login_page.open()
+
+    with allure.step('Нажатие на кнопку логина'):
+        login_page.login_button.click()
+
+    with allure.step('Появилось сообщение об ошибке'):
+        login_page.assert_error_visible()
+        login_page.assert_error_message_text('Epic sadface: Username is required')
+        allure.attach(page.screenshot(), name='Error message', attachment_type=allure.attachment_type.JPG)
 
 
 
