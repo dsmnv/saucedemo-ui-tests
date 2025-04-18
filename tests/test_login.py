@@ -15,7 +15,7 @@ def test_login_with_valid_credentials(login_page, page):
     with allure.step('Ввод логина и пароля'):
         login_page.login(username, password)
 
-    with allure.step('Проверка редиректа в каталог'):
+    with allure.step('Открыта страница каталога'):
         assert page.url == 'https://www.saucedemo.com/inventory.html'
         allure.attach(page.screenshot(), name='Catalog page', attachment_type=allure.attachment_type.JPG)
 
